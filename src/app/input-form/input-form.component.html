@@ -1,0 +1,19 @@
+<div> 
+
+<form (submit)="onSubmit()">
+    <input type="text" 
+    class="text-box"
+    placeholder="Enter Your Text Here" 
+    [(ngModel)]="userInput" 
+    name="userInput" required/>
+</form>
+<h1> Enter your suggested labels:</h1>
+<form (submit)="onSubmit()">
+    <input type="text" 
+    class="suggested-label-box"
+    placeholder="Enter Your Text Here" 
+    [(ngModel)]="userInput" 
+    name="userInput" required/>
+</form>
+
+</div>

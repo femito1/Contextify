@@ -1,0 +1,29 @@
+.text-box {
+    width: 600px;
+    height: 300px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+
+    &::placeholder {
+
+    color:#aaa;
+    }
+  }
+  
+  .suggested-label-box {
+    width: 600px;
+    height: 100px;
+    padding: 12px 16px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    box-sizing: border-box;
+
+    &::placeholder {
+
+    color:#aaa;
+    }
+  }
