@@ -8,6 +8,18 @@ from models.classifier import predict_labels, suggest_new_label
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
+# for testing purposes
+@app.route('/', methods=['GET'])
+def index():
+    """Root endpoint that provides basic API information"""
+    return jsonify({
+        'name': 'Zero-Shot Classification API',
+        'version': '0.1.0',
+        'endpoints': {
+            '/api/classify': 'POST - Classify text with given labels',
+            '/api/health': 'GET - Check API health status'
+        }
+    })
 
 @app.route('/api/classify', methods=['POST'])
 def home():
