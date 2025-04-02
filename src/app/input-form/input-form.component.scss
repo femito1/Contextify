@@ -1,9 +1,11 @@
   .text-box {
+    display: flex;
     width: 600px;
     align-items: center;
   }
 
   .text-box textarea {
+    display: flex;
     height: 150px;
     background-color: #ffffff;
     color: #474545;

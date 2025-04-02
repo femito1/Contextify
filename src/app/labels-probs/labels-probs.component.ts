@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
-import {MatTableModule} from '@angular/material/table';
+import {AfterViewInit, Component, ViewChild, inject} from '@angular/core';
+import {MatSort, Sort, MatSortModule} from '@angular/material/sort';
+import {MatTableDataSource, MatTableModule} from '@angular/material/table';
+import {LiveAnnouncer} from '@angular/cdk/a11y';
 
 export interface SuggestedLabels {
   label: string;
@@ -24,30 +26,31 @@ const ELEMENT_DATA: SuggestedLabels[] = [
  * @title Table with columns defined using a for loop instead of statically written in the template.
  */
 @Component({
+  standalone: true,
   selector: 'app-labels-probs',
   styleUrl: './labels-probs.component.scss',
   templateUrl: './labels-probs.component.html',
-  imports: [MatTableModule],
+  imports: [MatTableModule, MatSortModule],
 })
-export class LabelsProbsTable {
-  columns = [
-    {
-      columnDef: 'position',
-      header: 'Ranking',
-      cell: (label: SuggestedLabels) => `${label.position}`,
-    },
-    {
-      columnDef: 'label',
-      header: 'Suggested Label',
-      cell: (label: SuggestedLabels) => `${label.label}`,
-    },
-    {
-      columnDef: 'probability',
-      header: 'Probability (%)',
-      cell: (label: SuggestedLabels) => `${label.probability}`,
-    },
+export class LabelsProbsTable implements
+AfterViewInit {
+  private _liveAnnouncer = inject(LiveAnnouncer);
 
-  ];
-  dataSource = ELEMENT_DATA;
-  displayedColumns = this.columns.map(c => c.columnDef);
+  displayedColumns: string[] = ['position', 'label', 'probability'];
+  dataSource = new MatTableDataSource(ELEMENT_DATA);
+
+  @ViewChild(MatSort) sort!: MatSort;
+
+  ngAfterViewInit() {
+    this.dataSource.sort = this.sort;
+  }
+
+  announceSortChange(sortState: Sort) {
+
+    if (sortState.direction) {
+      this._liveAnnouncer.announce(`Sorted ${sortState.direction}ending`);
+    } else {
+      this._liveAnnouncer.announce('Sorting cleared');
+    }
+  }
 }

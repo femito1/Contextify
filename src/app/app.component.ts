@@ -26,11 +26,15 @@ import { MatChipInput, MatChipInputEvent, MatChipsModule } from '@angular/materi
     MatButtonModule,
     InputFormComponent,
 ],
+
 })
+
 export class AppComponent {
+  title: any
 
   readonly keywords = signal<string[]>([]);
   readonly formControl = new FormControl(['']);
+  errorMessage = signal<string | null>(null);
 
   announcer = inject(LiveAnnouncer);
 
@@ -49,15 +53,34 @@ export class AppComponent {
 
   add(event: MatChipInputEvent): void {
     const value = (event.value || '').trim();
-
-    // Add our keyword
-    if (value) {
+  
+    if (value && !this.keywords().includes(value)) {
       this.keywords.update(keywords => [...keywords, value]);
+    } else if (this.keywords().includes(value)) {
+      console.warn('Duplicate label:', value);
+      this.errorMessage.set(`"${value}" is already added.`);
+      setTimeout(() => this.errorMessage.set(null), 3000);
     }
-
-    // Clear the input value
+  
     event.chipInput!.clear();
   }
+  
+  
+  addLabelManually(labelInput: HTMLInputElement): void {
+    const value = labelInput.value.trim();
+  
+    if (value && !this.keywords().includes(value)) {
+      this.add({ value, chipInput: { clear: () => labelInput.value = '' } } as any);
+    } else if (this.keywords().includes(value)) {
+      console.warn('Duplicate label:', value);
+      this.errorMessage.set(`"${value}" is already added.`);
+      setTimeout(() => this.errorMessage.set(null), 3000);
+    }
+  }
+  
+  
+  
+
 }
 
 

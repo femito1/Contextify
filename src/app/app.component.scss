@@ -1,38 +1,90 @@
-  
 ::ng-deep .my-custom-button.mat-mdc-raised-button {
   background-color: #FF4136 !important;
   color: white !important;
   border-radius: 10px;
-  padding: 10px 20px;
+  padding: clamp(10px, 2vw, 20px) clamp(20px, 4vw, 36px);
+  font-size: clamp(1rem, 2vw, 1.25rem);
 }
 
-
 .logo-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    margin-top: 40px;
-  }
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: clamp(2rem, 5vw, 4rem);
 
-  .label-box {
-    width: 100%;
-    align-items: center;
+  img {
+    max-width: 100%;
+    height: auto;
   }
+}
 
-  .label-box textarea {
-    height: 100% !important;
-    background-color: #ffffff;
-    color: #474545;
-    font-size: larger;
-    align-items: center;
-  }
- 
-  .example-form-field {
-    width: 600px;
-    align-items: center;
-  }
-  .example-button-row {
-      display: flex;
-      justify-content: center;
-    }
+.label-box {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.label-box textarea {
+  width: 100%;
+  max-width: 800px;
+  height: clamp(100px, 20vw, 180px);
+  background-color: #ffffff;
+  color: #474545;
+  font-size: clamp(1rem, 2vw, 1.5rem);
+  padding: clamp(0.5rem, 2vw, 1rem);
+  border-radius: 8px;
+  resize: vertical;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+.example-form-field {
+  width: 100%;
+  //max-width: 800px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 clamp(1rem, 2vw, 2rem);
+}
+
+.example-button-row {
+  display: flex;
+  justify-content: center;
+  margin-top: clamp(1rem, 3vw, 2rem);
+}
+
+.add-label-button {
+  height: clamp(36px, 5vw, 48px);
+  align-self: flex-end;
+  font-size: clamp(0.9rem, 2vw, 1.1rem);
+}
+
+.my-custom-button {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+  padding: clamp(10px, 2vw, 20px) clamp(20px, 4vw, 36px);
+  height: auto;
+  min-height: 44px;
+  width: fit-content;
+  border-radius: 10px;
+}
+
+.chip-error {
+  color: #d32f2f;
+  font-size: clamp(0.75rem, 1vw, 0.9rem);
+  margin-top: 4px;
+  text-align: right;
+}
+
+.language-selecter-wrapper {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding-right: clamp(1rem, 4vw, 2rem);
+}
+
+.language-selecter {
+  width: clamp(100px, 15vw, 140px);
+  font-size: clamp(0.75rem, 1.5vw, 1rem);
+  height: clamp(36px, 5vw, 44px);
+}
