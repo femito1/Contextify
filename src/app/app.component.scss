@@ -1,3 +1,12 @@
+  
+::ng-deep .my-custom-button.mat-mdc-raised-button {
+  background-color: #FF4136 !important;
+  color: white !important;
+  border-radius: 10px;
+  padding: 10px 20px;
+}
+
+
 .logo-wrapper {
     display: flex;
     flex-direction: column;
@@ -6,5 +15,24 @@
     margin-top: 40px;
   }
 
+  .label-box {
+    width: 100%;
+    align-items: center;
+  }
 
-  
+  .label-box textarea {
+    height: 100% !important;
+    background-color: #ffffff;
+    color: #474545;
+    font-size: larger;
+    align-items: center;
+  }
+ 
+  .example-form-field {
+    width: 600px;
+    align-items: center;
+  }
+  .example-button-row {
+      display: flex;
+      justify-content: center;
+    }

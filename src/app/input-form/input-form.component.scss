@@ -1,29 +1,13 @@
-.text-box {
+  .text-box {
     width: 600px;
-    height: 300px;
-    padding: 12px 16px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box;
-
-    &::placeholder {
-
-    color:#aaa;
-    }
+    align-items: center;
   }
-  
-  .suggested-label-box {
-    width: 600px;
-    height: 100px;
-    padding: 12px 16px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    box-sizing: border-box;
 
-    &::placeholder {
-
-    color:#aaa;
-    }
+  .text-box textarea {
+    height: 150px;
+    background-color: #ffffff;
+    color: #474545;
+    font-size: larger;
+    align-items: center;
   }
+ 

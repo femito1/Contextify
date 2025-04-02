@@ -1,19 +1,9 @@
 <div> 
-
-<form (submit)="onSubmit()">
-    <input type="text" 
-    class="text-box"
-    placeholder="Enter Your Text Here" 
-    [(ngModel)]="userInput" 
-    name="userInput" required/>
+<form>
+<mat-form-field appearance="outline" class="text-box">
+    <mat-label>
+        Enter your text here
+    </mat-label>
+    <textarea matInput [formControl]="userText" placeholder="Ex. It makes me feel..."></textarea>
+    </mat-form-field>
 </form>
-<h1> Enter your suggested labels:</h1>
-<form (submit)="onSubmit()">
-    <input type="text" 
-    class="suggested-label-box"
-    placeholder="Enter Your Text Here" 
-    [(ngModel)]="userInput" 
-    name="userInput" required/>
-</form>
-
-</div>

@@ -1,0 +1,15 @@
+<app-input-form></app-input-form>
+<app-labels-probs></app-labels-probs>
+
+<div class="result-container" style="text-align: center;">
+    <h4>The label that best describes the text is:</h4>
+    
+    <div class="result-label">
+      <span class="label-text"><strong>{{ predictedLabel }}</strong></span>
+    </div>
+    
+    <div class="result-prob">
+      <span>Probability: {{ predictedProb  }}</span>
+    </div>
+  </div>
+  
