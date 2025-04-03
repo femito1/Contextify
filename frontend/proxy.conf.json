@@ -3,6 +3,7 @@
       "target": "http://localhost:5000",
       "secure": false,
       "changeOrigin": true,
-      "pathRewrite": {"^/api": ""}
+      "logLevel": "debug",
+      "pathRewrite": {"^/api": "/api"}
     }
   }
