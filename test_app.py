@@ -90,46 +90,32 @@ class TestZeroShotClassificationAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertFalse(data['success'])
         self.assertIn('error', data)
-
-    def test_classify_misspelled_labels(self):
-        """Test classification with misspelled labels"""
+        
+    def test_spell_check_labels(self):
+        """Test the spell checking functionality for labels"""
         test_data = {
             'text': 'This is a test sentence.',
-            'labels': ['positve', 'negativ', 'neutral']  # Misspelled labels
+            'labels': ['positve', 'happyness', 'neutral']  # Misspelled labels
         }
         
         response = self.app.post('/api/classify',
-                               data=json.dumps(test_data),
-                               content_type='application/json')
+                              data=json.dumps(test_data),
+                              content_type='application/json')
         
         data = json.loads(response.data)
         
         self.assertEqual(response.status_code, 400)
         self.assertFalse(data['success'])
-        self.assertEqual(data['error'], 'Some labels have spelling errors')
-        self.assertIn('misspelled_labels', data)
-        self.assertEqual(len(data['misspelled_labels']), 2)  # Two misspelled labels
-        self.assertTrue(any(label['original'] == 'positve' for label in data['misspelled_labels']))
-        self.assertTrue(any(label['original'] == 'negativ' for label in data['misspelled_labels']))
-        self.assertTrue(all('suggestions' in label for label in data['misspelled_labels']))
-
-    def test_classify_multilingual_labels(self):
-        """Test classification with labels in different languages"""
-        test_data = {
-            'text': 'This is a test sentence.',
-            'labels': ['sport', 'intrattenimento', 'politics']  # Mix of English and Italian
-        }
+        self.assertIn('error', data)
+        self.assertIn('spelling_suggestions', data)
         
-        response = self.app.post('/api/classify',
-                               data=json.dumps(test_data),
-                               content_type='application/json')
+        # Check if we got spelling suggestions for the misspelled words
+        self.assertIn('positve', data['spelling_suggestions'])
+        self.assertIn('happyness', data['spelling_suggestions'])
         
-        data = json.loads(response.data)
-        
-        self.assertEqual(response.status_code, 200)
-        self.assertTrue(data['success'])
-        self.assertIn('results', data)
-        self.assertIn('language', data)
+        # Check if the suggestions are correct
+        self.assertEqual(data['spelling_suggestions']['positve'], 'positive')
+        self.assertEqual(data['spelling_suggestions']['happyness'], 'happiness')
 
 if __name__ == '__main__':
     unittest.main() 

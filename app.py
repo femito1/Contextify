@@ -3,7 +3,6 @@ from flask_cors import CORS
 import os
 from utils.validation import validate_classification_input
 from utils.language import detect_language
-from utils.spelling import check_labels
 from models.classifier import predict_labels, suggest_new_label
 
 app = Flask(__name__)
@@ -31,37 +30,26 @@ def home():
         # Validate input data
         validation_result = validate_classification_input(data)
         if not validation_result['valid']:
-            return jsonify({
+            response = {
                 'success': False, 
                 'error': validation_result['error']
-            }), 400
+            }
+            
+            # Include spelling suggestions if available
+            if 'spelling_suggestions' in validation_result:
+                response['spelling_suggestions'] = validation_result['spelling_suggestions']
+                
+            return jsonify(response), 400
         
         # Extract validated data
         text = data.get('text', '')
         candidate_labels = data.get('labels', [])
         
-        # Check spelling of labels
-        spelling_result = check_labels(candidate_labels)
-        if not spelling_result['all_correct']:
-            # If any labels are misspelled, return suggestions
-            misspelled_labels = [
-                {
-                    'original': result['label'],
-                    'suggestions': result['suggestions']
-                }
-                for result in spelling_result['labels']
-                if not result['is_correct']
-            ]
-            return jsonify({
-                'success': False,
-                'error': 'Some labels have spelling errors',
-                'misspelled_labels': misspelled_labels
-            }), 400
-        
         # Detect language (for multilingual support)
         language = detect_language(text)
         
-        # Get classification results
+        # This will eventually call model
+
         classification_results = predict_labels(text, candidate_labels, language)
         
         # Check if any label has a high enough probability
