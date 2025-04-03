@@ -8,10 +8,24 @@ import { CommonModule } from '@angular/common';
 
 
 export interface SuggestedLabels {
+
   label: string;
   position: number;
   probability: number;
 }
+
+const ELEMENT_DATA: SuggestedLabels[] = [
+  {position: 1, label: 'sports', probability: 91},
+  {position: 2, label: 'politics', probability: 80},
+  {position: 3, label: 'netflix', probability: 70},
+  {position: 4, label: 'food', probability: 57},
+  {position: 5, label: 'drinks', probability: 46},
+  {position: 6, label: 'geography', probability: 25},
+  {position: 7, label: 'maths', probability: 23},
+  {position: 8, label: 'science', probability: 20},
+  {position: 9, label: 'travel', probability: 5},
+  {position: 10, label: 'comics', probability: 0.3},
+];
 
 /**
  * @title Table with columns defined using a for loop instead of statically written in the template.
@@ -27,7 +41,6 @@ export interface SuggestedLabels {
 export class LabelsProbsTable implements AfterViewInit, OnChanges {
   private _liveAnnouncer = inject(LiveAnnouncer);
   @Input() userLabels: string[] = [];
-  @Input() classificationResults: {[key: string]: number} = {};
 
   displayedColumns: string[] = ['position', 'label', 'probability'];
   dataSource = new MatTableDataSource<SuggestedLabels>();
@@ -35,36 +48,13 @@ export class LabelsProbsTable implements AfterViewInit, OnChanges {
   @ViewChild(MatSort) sort!: MatSort;
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['userLabels'] || changes['classificationResults']) {
-      this.updateDataSource();
-    }
-  }
-
-  private updateDataSource(): void {
-    const generatedData: SuggestedLabels[] = this.userLabels.map((label, index) => {
-      // Get probability from the API results or default to 0
-      const probability = this.classificationResults[label] || 0;
-      
-      return {
+    if (changes['userLabels']) {
+      const generatedData: SuggestedLabels[] = this.userLabels.map((label, index) => ({
         position: index + 1,
         label,
-        probability: Math.round(probability * 100) // Convert to percentage
-      };
-    });
-    
-    // Sort by probability (descending)
-    generatedData.sort((a, b) => b.probability - a.probability);
-    
-    // Re-assign positions after sorting
-    generatedData.forEach((item, index) => {
-      item.position = index + 1;
-    });
-    
-    this.dataSource = new MatTableDataSource(generatedData);
-    
-    // If we already have the sort set up, apply it
-    if (this.sort) {
-      this.dataSource.sort = this.sort;
+        probability: 0
+      }));
+      this.dataSource = new MatTableDataSource(generatedData);
     }
   }
 
@@ -73,6 +63,7 @@ export class LabelsProbsTable implements AfterViewInit, OnChanges {
   }
 
   announceSortChange(sortState: Sort) {
+
     if (sortState.direction) {
       this._liveAnnouncer.announce(`Sorted ${sortState.direction}ending`);
     } else {
