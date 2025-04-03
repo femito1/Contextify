@@ -1,0 +1,15 @@
+/venv
+exercise.py
+test_api.py
+node_modules
+.angular
+.DS_Store
+.json
+.editorconfig
+angular.json
+package-lock.json
+package.json
+tsconfig.app.json
+.vscode/extensions.json
+.vscode/launch.json
+.vscode/tasks.json

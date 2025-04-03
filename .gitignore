@@ -6,10 +6,4 @@ node_modules
 .DS_Store
 .json
 .editorconfig
-angular.json
-package-lock.json
-package.json
-tsconfig.app.json
-.vscode/extensions.json
-.vscode/launch.json
-.vscode/tasks.json
+*.pyc
