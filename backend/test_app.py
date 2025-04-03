@@ -1,5 +1,5 @@
 import unittest
-from app import app
+from backend.app import app
 import json
 
 class TestZeroShotClassificationAPI(unittest.TestCase):
