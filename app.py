@@ -3,6 +3,7 @@ from flask_cors import CORS
 import os
 from utils.validation import validate_classification_input
 from utils.language import detect_language
+from utils.spelling import check_labels
 from models.classifier import predict_labels, suggest_new_label
 
 app = Flask(__name__)
@@ -39,11 +40,28 @@ def home():
         text = data.get('text', '')
         candidate_labels = data.get('labels', [])
         
+        # Check spelling of labels
+        spelling_result = check_labels(candidate_labels)
+        if not spelling_result['all_correct']:
+            # If any labels are misspelled, return suggestions
+            misspelled_labels = [
+                {
+                    'original': result['label'],
+                    'suggestions': result['suggestions']
+                }
+                for result in spelling_result['labels']
+                if not result['is_correct']
+            ]
+            return jsonify({
+                'success': False,
+                'error': 'Some labels have spelling errors',
+                'misspelled_labels': misspelled_labels
+            }), 400
+        
         # Detect language (for multilingual support)
         language = detect_language(text)
         
-        # This will eventually call model
-
+        # Get classification results
         classification_results = predict_labels(text, candidate_labels, language)
         
         # Check if any label has a high enough probability
