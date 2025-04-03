@@ -1,11 +1,11 @@
   .text-box {
     display: flex;
-    width: 600px;
+    width: clamp(300px, 80vw, 600px);
     align-items: center;
+    min-width: 400px;
   }
 
   .text-box textarea {
-    display: flex;
     height: 150px;
     background-color: #ffffff;
     color: #474545;

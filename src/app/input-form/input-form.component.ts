@@ -1,6 +1,6 @@
 import { LiveAnnouncer } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, inject, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, Input, OnInit, signal, untracked, Output, EventEmitter } from '@angular/core';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButton, MatButtonModule } from '@angular/material/button';
 import { MatChipInput, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
@@ -26,6 +26,19 @@ import { MatInputModule } from '@angular/material/input';
   ],
 })
 
-export class InputFormComponent {
+export class InputFormComponent implements OnInit {
+
+  @Input() initialText: string = '';
+  @Input() readonly: boolean = false;
+  @Output() textChanged = new EventEmitter<string>();
   userText = new FormControl('');
+
+  ngOnInit() {
+    this.userText.setValue(this.initialText);
+
+    this.userText.valueChanges.subscribe(value => {
+      this.textChanged.emit(value || '');
+    });
+  }
 }
+

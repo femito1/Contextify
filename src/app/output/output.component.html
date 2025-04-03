@@ -1,4 +1,8 @@
-<app-input-form></app-input-form>
+<div class="go-back-button-wrapper">
+  <button mat-raised-button class="go-back-button" (click)="goBack()">Back to Edit</button>
+</div>
+
+<app-input-form [initialText]="inputText" [readonly]="true"></app-input-form>
 <app-labels-probs></app-labels-probs>
 
 <div class="result-container" style="text-align: center;">
@@ -12,4 +16,6 @@
       <span>Probability: {{ predictedProb  }}</span>
     </div>
   </div>
-  
+  <div class="go-home-button-wrapper">
+    <button mat-raised-button class="go-home-button" (click)="goToHome()">Enter new text</button>
+  </div>

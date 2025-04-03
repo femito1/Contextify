@@ -10,21 +10,25 @@
   }
   
   .content-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     width: 100%;
-    max-width: 800px;
+    display: flex;
+    justify-content: center;
+    padding: 1rem;
+    box-sizing: border-box;
   }
   
   .language-selecter-wrapper {
     display: flex;
     justify-content: flex-end;
+    padding-right: 50px;
+    padding-top: 20px;
   }
   
   .language-selecter {
     width: 100px;
     font-size: 5px;
-    height: 5px;
+    height: 2px;
+    margin: 0;
+    padding: 0;
   }
   

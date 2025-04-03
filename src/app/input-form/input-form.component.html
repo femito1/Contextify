@@ -1,9 +1,10 @@
-<div> 
-<form>
-<mat-form-field appearance="outline" class="text-box">
-    <mat-label>
-        Enter your text here
-    </mat-label>
-    <textarea matInput [formControl]="userText" placeholder="Ex. It makes me feel..."></textarea>
-    </mat-form-field>
-</form>
+<div class="form-wrapper">
+    <form>
+    <mat-form-field appearance="outline" class="text-box">
+        <mat-label>
+            Enter your text here
+        </mat-label>
+        <textarea matInput [formControl]="userText" [readonly]="readonly" placeholder="Ex. It makes me feel..."></textarea>
+        </mat-form-field>
+    </form>
+</div>

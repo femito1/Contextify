@@ -1,5 +1,5 @@
 <div class="content-wrapper">
-  <app-input-form></app-input-form>
+  <app-input-form (textChanged)="onTextChanged($event)" [initialText]="latestText"></app-input-form>
 </div>
 
 <div class="example-button-container">
@@ -23,7 +23,7 @@
 
       <mat-label>Suggested Labels</mat-label> 
 
-      <mat-chip-grid #chipGrid aria-label="Enter suggested labels" [formControl]="formControl">
+      <mat-chip-grid #chipGrid aria-label="Enter suggested labels">
   
         @for (keyword of keywords(); track keyword) {
           <mat-chip-row (removed)="removeKeyword(keyword)">
@@ -39,7 +39,7 @@
 
 
 <div class="example-button-row">
-    <a mat-raised-button href="http://localhost:4200/output" target="_blank" class="my-custom-button">Classify</a>
+  <button mat-raised-button class="my-custom-button" (click)="goToOutput()">Classify</button>
 </div>
 </div>
 

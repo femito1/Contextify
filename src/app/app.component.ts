@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { RouterModule, RouterOutlet } from '@angular/router';
+import { RouterModule, RouterOutlet, Router} from '@angular/router';
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { InputFormComponent } from './input-form/input-form.component';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -25,16 +25,49 @@ import { MatChipInput, MatChipInputEvent, MatChipsModule } from '@angular/materi
     MatIconModule,
     MatButtonModule,
     InputFormComponent,
+    RouterModule
 ],
 
 })
 
 export class AppComponent {
+  
   title: any
 
   readonly keywords = signal<string[]>([]);
-  readonly formControl = new FormControl(['']);
   errorMessage = signal<string | null>(null);
+
+  latestText: string = '';
+    
+  
+  constructor(private router: Router) {
+    const restoredText = history.state['inputText'];
+    const restoredLabels = history.state['userLabels'];
+  
+    if (restoredText) {
+      this.latestText = restoredText;
+    }
+  
+    if (restoredLabels) {
+      this.keywords.set(restoredLabels);
+    }
+
+  
+  }
+
+  onTextChanged(text: string) {
+    this.latestText = text;
+  }
+
+  goToOutput(): void {
+    const labels = this.keywords();
+    this.router.navigate(['/output'], {
+      state: {
+        userLabels: labels,
+        inputText:  this.latestText
+      }
+    });
+  }
 
   announcer = inject(LiveAnnouncer);
 
@@ -77,10 +110,9 @@ export class AppComponent {
       setTimeout(() => this.errorMessage.set(null), 3000);
     }
   }
-  
-  
-  
 
 }
+  
+
 
 
