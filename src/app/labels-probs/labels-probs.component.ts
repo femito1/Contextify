@@ -1,4 +1,4 @@
-import {AfterViewInit, Component, ViewChild, inject} from '@angular/core';
+import {AfterViewInit, Component, ViewChild, inject, OnChanges, SimpleChanges, Input} from '@angular/core';
 import {MatSort, Sort, MatSortModule} from '@angular/material/sort';
 import {MatTableDataSource, MatTableModule} from '@angular/material/table';
 import {LiveAnnouncer} from '@angular/cdk/a11y';
@@ -37,34 +37,30 @@ const ELEMENT_DATA: SuggestedLabels[] = [
   templateUrl: './labels-probs.component.html',
   imports: [MatTableModule, MatSortModule, MatChipsModule, CommonModule],
 })
-export class LabelsProbsTable implements
-AfterViewInit {
-  private _liveAnnouncer = inject(LiveAnnouncer);
 
-  userLabels: string[] = [];
+export class LabelsProbsTable implements AfterViewInit, OnChanges {
+  private _liveAnnouncer = inject(LiveAnnouncer);
+  @Input() userLabels: string[] = [];
 
   displayedColumns: string[] = ['position', 'label', 'probability'];
-  dataSource = new MatTableDataSource(ELEMENT_DATA);
+  dataSource = new MatTableDataSource<SuggestedLabels>();
 
   @ViewChild(MatSort) sort!: MatSort;
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['userLabels']) {
+      const generatedData: SuggestedLabels[] = this.userLabels.map((label, index) => ({
+        position: index + 1,
+        label,
+        probability: 0
+      }));
+      this.dataSource = new MatTableDataSource(generatedData);
+    }
+  }
 
   ngAfterViewInit() {
     this.dataSource.sort = this.sort;
   }
-
-  constructor(private router: Router) {
-    const nav = this.router.getCurrentNavigation();
-    this.userLabels = nav?.extras.state?.['userLabels'] ?? [];
-
-    const generatedData: SuggestedLabels[] = this.userLabels.map((label, index) => ({
-      position: index + 1,
-      label,
-      probability: 0
-    }));
-
-    this.dataSource = new MatTableDataSource(generatedData);
-  }
-  
 
   announceSortChange(sortState: Sort) {
 
