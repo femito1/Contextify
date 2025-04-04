@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core';
-import { RouterModule, RouterOutlet, Router} from '@angular/router';
-import { CommonModule, NgOptimizedImage } from '@angular/common';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { InputFormComponent } from './input-form/input-form.component';
 import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
-import { ChangeDetectionStrategy, inject, signal, untracked } from '@angular/core';
+import { ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { LiveAnnouncer } from '@angular/cdk/a11y';
-import { MatChipInput, MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ApiService } from './api.service';
 import { Observable, debounceTime, distinctUntilChanged, of, startWith, switchMap } from 'rxjs';
@@ -29,19 +29,15 @@ import { Observable, debounceTime, distinctUntilChanged, of, startWith, switchMa
     MatIconModule,
     MatButtonModule,
     MatAutocompleteModule,
-    InputFormComponent,
-    RouterModule
+    InputFormComponent
   ],
 })
-
 export class AppComponent implements OnInit {
-  
   title: any;
   readonly keywords = signal<string[]>([]);
   errorMessage = signal<string | null>(null);
   latestText: string = '';
   
-  // For autocomplete
   labelCtrl = new FormControl('');
   filteredLabels: Observable<string[]>;
   allLabels: string[] = [];
@@ -58,12 +54,10 @@ export class AppComponent implements OnInit {
       this.keywords.set(restoredLabels);
     }
 
-    // Initialize filteredLabels with empty array
     this.filteredLabels = of([]);
   }
 
   ngOnInit() {
-    // Set up autocomplete filtering
     this.filteredLabels = this.labelCtrl.valueChanges.pipe(
       startWith(''),
       debounceTime(300),
@@ -72,7 +66,6 @@ export class AppComponent implements OnInit {
         if (!value || typeof value !== 'string') {
           return of([]);
         }
-        // Pass both the partial input and the current text content for context-aware suggestions
         return this.apiService.suggestLabels(value, this.latestText);
       })
     );
@@ -80,9 +73,6 @@ export class AppComponent implements OnInit {
 
   onTextChanged(text: string) {
     this.latestText = text;
-    
-    // Refresh suggestions when text changes
-    // The debounce in the pipe prevents too many API calls
     if (this.labelCtrl.value) {
       this.labelCtrl.updateValueAndValidity();
     }
@@ -90,6 +80,13 @@ export class AppComponent implements OnInit {
 
   goToOutput(): void {
     const labels = this.keywords();
+    
+    if (!this.latestText || this.latestText.trim() === '') {
+      this.errorMessage.set("Please enter some text before adding labels");
+      setTimeout(() => this.errorMessage.set(null), 3000);
+      return;
+    }
+    
     if (labels.length === 0) {
       this.errorMessage.set("Please add at least one label");
       setTimeout(() => this.errorMessage.set(null), 3000);
@@ -119,8 +116,14 @@ export class AppComponent implements OnInit {
     });
   }
 
-  add(event: MatChipInputEvent): void {
+  add(event: { value: string, chipInput: { clear: () => void } }): void {
     const value = (event.value || '').trim();
+    
+    if (!this.latestText || this.latestText.trim() === '') {
+      this.errorMessage.set("Please enter some text before adding labels");
+      setTimeout(() => this.errorMessage.set(null), 3000);
+      return;
+    }
   
     if (value && !this.keywords().includes(value)) {
       this.keywords.update(keywords => [...keywords, value]);
@@ -137,6 +140,12 @@ export class AppComponent implements OnInit {
   
   addLabelManually(labelInput: HTMLInputElement): void {
     const value = labelInput.value.trim();
+    
+    if (!this.latestText || this.latestText.trim() === '') {
+      this.errorMessage.set("Please enter some text before adding labels");
+      setTimeout(() => this.errorMessage.set(null), 3000);
+      return;
+    }
   
     if (value && !this.keywords().includes(value)) {
       this.add({ value, chipInput: { clear: () => labelInput.value = '' } } as any);
@@ -147,9 +156,15 @@ export class AppComponent implements OnInit {
     }
   }
 
-  // Autocomplete selection handler
   selected(event: MatAutocompleteSelectedEvent): void {
     const value = event.option.viewValue;
+    
+    if (!this.latestText || this.latestText.trim() === '') {
+      this.errorMessage.set("Please enter some text before adding labels");
+      setTimeout(() => this.errorMessage.set(null), 3000);
+      return;
+    }
+    
     if (!this.keywords().includes(value)) {
       this.keywords.update(keywords => [...keywords, value]);
       this.announcer.announce(`added ${value}`);

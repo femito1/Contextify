@@ -26,7 +26,6 @@ interface Language {
     MatInputModule, 
     FormsModule, 
     MatSelectModule,
-    InputFormComponent,
     MatButtonModule,
     MatProgressSpinnerModule
   ],
