@@ -135,14 +135,12 @@ export class AppComponent implements OnInit {
     this.labelCtrl.setValue('');
   }
   
-  addLabelManually(): void {
-    const value = this.labelCtrl.value?.trim();
+  addLabelManually(labelInput: HTMLInputElement): void {
+    const value = labelInput.value.trim();
   
     if (value && !this.keywords().includes(value)) {
-      this.keywords.update(keywords => [...keywords, value]);
-      this.announcer.announce(`added ${value}`);
-      this.labelCtrl.setValue('');
-    } else if (value && this.keywords().includes(value)) {
+      this.add({ value, chipInput: { clear: () => labelInput.value = '' } } as any);
+    } else if (this.keywords().includes(value)) {
       console.warn('Duplicate label:', value);
       this.errorMessage.set(`"${value}" is already added.`);
       setTimeout(() => this.errorMessage.set(null), 3000);

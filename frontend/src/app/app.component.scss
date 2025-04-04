@@ -42,9 +42,20 @@
 .example-form-field {
   width: 100%;
   //max-width: 800px;
-  margin: 0 auto;
+  margin: 10 auto;
   box-sizing: border-box;
   padding: 0 clamp(1rem, 2vw, 2rem);
+  display: flex;
+}
+
+.enter-label-text {
+  width: 100%;
+  //max-width: 800px;
+  margin: 10 auto;
+  box-sizing: border-box;
+  padding: 0 clamp(1rem, 2vw, 2rem);
+  display: flex;
+
 }
 
 .example-button-row {
@@ -71,8 +82,8 @@
 .chip-error {
   color: #d32f2f;
   font-size: clamp(0.75rem, 1vw, 0.9rem);
-  margin-top: 4px;
-  text-align: right;
+  margin-top: 0px;
+  text-align: left;
 }
 
 .language-selecter-wrapper {
@@ -87,4 +98,19 @@
   width: clamp(100px, 15vw, 140px);
   font-size: clamp(0.75rem, 1.5vw, 1rem);
   height: clamp(36px, 5vw, 44px);
+}
+
+.new-label {
+  display: flex; 
+  align-items: center; 
+  gap: 8px;
+}
+
+.deneme {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  max-width: 500px;
+  align-items: center;
+  margin: 0 auto;
 }

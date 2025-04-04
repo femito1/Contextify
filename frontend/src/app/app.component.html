@@ -3,22 +3,25 @@
 </div>
 
 <div class="example-button-container">
-  <p>
-    <em>Enter labels for classification</em>
-  </p>
   
-  <mat-form-field class="example-form-field">
-    <mat-label>Labels</mat-label>
-    
-    <input 
+  <div class="enter-label-text">
+    <p><em>Enter suggested labels:</em></p>
+  </div>
+  <mat-form-field class="example-form-field" appearance="fill">
+    <div class="new-label">
+  
+    <input
+      #labelInput
       matInput
       [formControl]="labelCtrl"
       [matAutocomplete]="auto"
       [matChipInputFor]="chipGrid"
       (matChipInputTokenEnd)="add($event)"
       placeholder="New label..."
+      style="flex: 1;"
     />
-    
+    <button mat-raised-button color="primary" (click)="addLabelManually(labelInput)">Add</button>
+    </div>
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
       @for (label of filteredLabels | async; track label) {
         <mat-option [value]="label">{{label}}</mat-option>
@@ -29,19 +32,22 @@
       {{ errorMessage() }}
     </div>
     
-    <button mat-raised-button color="primary" (click)="addLabelManually()">Add</button>
-    
-    <mat-chip-grid #chipGrid aria-label="Enter labels">
+    <mat-label>Suggested Labels</mat-label>
+
+  </mat-form-field>
+  <div class="deneme">
+    <mat-chip-grid #chipGrid aria-label="Enter suggested labels">
       @for (keyword of keywords(); track keyword) {
-        <mat-chip-row (removed)="removeKeyword(keyword)">
-          {{keyword}}
-          <button matChipRemove aria-label="'remove ' + keyword">
-            <mat-icon>cancel</mat-icon>
-          </button>
-        </mat-chip-row>
+          <mat-chip-row (removed)="removeKeyword(keyword)">
+            {{ keyword }}
+            <button matChipRemove aria-label="'remove ' + keyword">
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip-row>
       }
     </mat-chip-grid>
-  </mat-form-field>
+  </div>
+
 
   <div class="example-button-row">
     <button mat-raised-button class="my-custom-button" (click)="goToOutput()">Classify</button>
