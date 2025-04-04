@@ -4,20 +4,54 @@
 
 <app-input-form [initialText]="inputText" [readonly]="true"></app-input-form>
 
-<app-labels-probs *ngIf="userLabels.length >0" [userLabels]="userLabels"></app-labels-probs>
+<app-labels-probs *ngIf="userLabels.length > 0 && !loading && !error && !spellingError" [userLabels]="userLabels" [classificationResults]="classificationResults"></app-labels-probs>
 
-<h4 style="text-align: center;">The label that best describes the text is:</h4>
+<div *ngIf="loading" class="loading-container" style="text-align: center; margin: 20px 0;">
+  <p>Classifying text...</p>
+</div>
 
-<div class="result-container" style="text-align: center;">
+<div *ngIf="spellingError" class="spelling-error-container" style="text-align: center; margin: 20px 0; color: #ff6b00;">
+  <p>Some labels may be misspelled. Would you like to use these corrections instead?</p>
+  <div style="margin: 15px 0;">
+    <table style="margin: 0 auto; text-align: left;">
+      <tr>
+        <th style="padding: 5px 10px;">Original</th>
+        <th style="padding: 5px 10px;">Suggested</th>
+      </tr>
+      <tr *ngFor="let correction of spellingCorrections | keyvalue">
+        <td style="padding: 5px 10px;">{{ correction.key }}</td>
+        <td style="padding: 5px 10px;">{{ correction.value }}</td>
+      </tr>
+    </table>
+  </div>
+  <div style="margin-top: 15px;">
+    <button mat-raised-button color="primary" (click)="useSpellingCorrections()">Use Corrected Labels</button>
+    <button mat-raised-button style="margin-left: 10px;" (click)="goBack()">Edit Labels Manually</button>
+  </div>
+</div>
+
+<div *ngIf="error && !spellingError" class="error-container" style="text-align: center; margin: 20px 0; color: red;">
+  <p>{{ error }}</p>
+</div>
+
+<div *ngIf="!loading && !error && !spellingError">
+  <h4 style="text-align: center;">The label that best describes the text is:</h4>
+
+  <div class="result-container" style="text-align: center;">
     <div class="result-label">
       <span class="label-text"><strong>{{ predictedLabel }}</strong></span>
     </div>
     
     <div class="result-prob">
-      <span>Probability: {{ predictedProb  }}</span>
+      <span>Probability: {{ predictedProb }}%</span>
+    </div>
+    
+    <div *ngIf="language" class="detected-language">
+      <span>Detected language: {{ language }}</span>
     </div>
   </div>
+</div>
 
 <div class="go-home-button-wrapper">
-    <button mat-raised-button class="go-home-button" (click)="goToHome()">Enter new text</button>
+  <button mat-raised-button class="go-home-button" (click)="goToHome()">Enter new text</button>
 </div>
