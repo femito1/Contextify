@@ -17,6 +17,7 @@ export class OutputComponent implements OnInit {
   predictedProb = 0;
   inputText: string = '';
   userLabels: string[] = [];
+  novelSuggestions: string = '';
   loading = true;
   error: string | null = null;
   classificationResults: {[key: string]: number} = {};
@@ -46,30 +47,25 @@ export class OutputComponent implements OnInit {
     this.spellingCorrections = {};
     
     this.apiService.classifyText(this.inputText, this.userLabels).subscribe({
-      next: (response: ClassificationResponse) => {
-        if (response.success) {
-          this.classificationResults = response.results;
+      next: (response: any) => {
+        if (response.success && response.results) {
+          // Convert tuple array to classificationResults dictionary
+          this.classificationResults = {};
+          response.results.predicted_labels.forEach(([label, prob]: [string, number]) => {
+            this.classificationResults[label] = prob;
+          });
+  
           this.language = response.language || '';
           
-          // Find the label with highest probability
-          let maxProb = 0;
-          let bestLabel = '';
-          
-          Object.entries(this.classificationResults).forEach(([label, prob]) => {
-            if (label !== 'suggested_label' && label !== 'suggested_probability') {
-              if (Number(prob) > maxProb) {
-                maxProb = Number(prob);
-                bestLabel = label;
-              }
-            }
-          });
-          
-          this.predictedLabel = bestLabel;
-          this.predictedProb = Math.round(maxProb * 100);
+          // Set predicted label and probability from best_label
+          this.predictedLabel = response.results.best_label;
+          this.predictedProb = Math.round(this.classificationResults[this.predictedLabel] * 100);
+  
+          // Handle novel suggestions
+          this.novelSuggestions = response.results.novel_suggestions;
         } else {
           this.error = response.error || "Unknown error occurred";
           
-          // Check for spelling suggestions
           if (response.spelling_suggestions) {
             this.spellingError = true;
             this.spellingCorrections = response.spelling_suggestions;

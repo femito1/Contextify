@@ -4,6 +4,7 @@ import os
 from utils.validation import validate_classification_input
 from utils.language import detect_language, get_label_suggestions
 from models.classifier import predict_labels, suggest_new_label
+from models.nli_model import zero_shot_classify
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -51,16 +52,8 @@ def home():
         
         # This will eventually call model
 
-        classification_results = predict_labels(text, candidate_labels, language)
-        
-        # Check if any label has a high enough probability
-        # If not, suggest a new label
-        best_label = max(classification_results, key=classification_results.get)
-        if classification_results[best_label] < 0.3:  # Threshold can be adjusted
-            suggested_label = suggest_new_label(text, language)
-            classification_results['suggested_label'] = suggested_label
-            classification_results['suggested_probability'] = 0.95  # Mock value
-        
+        classification_results = zero_shot_classify(text, candidate_labels, lang=language)
+        print(classification_results)
         return jsonify({
             'success': True,
             'results': classification_results,
