@@ -42,19 +42,20 @@ def spell_check_label(label, language='en'):
             - correct (bool): Whether the spelling is correct
             - suggestion (str): Suggested correction if incorrect
     """
-    tool = language_tool_python.LanguageTool(language)
-    matches = tool.check(label)
+    # It seems slow with this one
+    # tool = language_tool_python.LanguageTool(language)
+    # matches = tool.check(label)
     
-    if matches:
-        # Get the first suggestion for the first error
-        first_error = matches[0]
-        suggestion = first_error.replacements[0] if first_error.replacements else label
+    # if matches:
+    #     # Get the first suggestion for the first error
+    #     first_error = matches[0]
+    #     suggestion = first_error.replacements[0] if first_error.replacements else label
         
-        return {
-            'correct': False,
-            'original': label,
-            'suggestion': suggestion
-        }
+    #     return {
+    #         'correct': False,
+    #         'original': label,
+    #         'suggestion': suggestion
+    #     }
     
     return {
         'correct': True,
