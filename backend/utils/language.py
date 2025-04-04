@@ -1,6 +1,7 @@
 from langdetect import detect
 from langdetect.lang_detect_exception import LangDetectException
 from spellchecker import SpellChecker
+import language_tool_python
 
 def detect_language(text):
     """
@@ -27,6 +28,7 @@ def detect_language(text):
         # In case of any detection errors, default to English
         return 'en' 
 
+
 def spell_check_label(label, language='en'):
     """
     Check if a label is spelled correctly.
@@ -40,27 +42,18 @@ def spell_check_label(label, language='en'):
             - correct (bool): Whether the spelling is correct
             - suggestion (str): Suggested correction if incorrect
     """
-    # Create a spell checker for the specified language
-    spell = SpellChecker(language=language)
+    tool = language_tool_python.LanguageTool(language)
+    matches = tool.check(label)
     
-    # Remove spaces from multi-word labels to check each word
-    words = label.split()
-    
-    # Check if any word is misspelled
-    misspelled = spell.unknown(words)
-    
-    if misspelled:
-        # Get the first misspelled word and its correction
-        word = list(misspelled)[0]
-        correction = spell.correction(word)
-        
-        # Replace the misspelled word in the original label
-        corrected_label = label.replace(word, correction)
+    if matches:
+        # Get the first suggestion for the first error
+        first_error = matches[0]
+        suggestion = first_error.replacements[0] if first_error.replacements else label
         
         return {
             'correct': False,
             'original': label,
-            'suggestion': corrected_label
+            'suggestion': suggestion
         }
     
     return {
