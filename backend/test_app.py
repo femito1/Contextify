@@ -1,5 +1,5 @@
 import unittest
-from app import app
+from backend.app import app
 import json
 
 class TestZeroShotClassificationAPI(unittest.TestCase):
@@ -90,6 +90,32 @@ class TestZeroShotClassificationAPI(unittest.TestCase):
         self.assertEqual(response.status_code, 500)
         self.assertFalse(data['success'])
         self.assertIn('error', data)
+        
+    def test_spell_check_labels(self):
+        """Test the spell checking functionality for labels"""
+        test_data = {
+            'text': 'This is a test sentence.',
+            'labels': ['positve', 'happyness', 'neutral']  # Misspelled labels
+        }
+        
+        response = self.app.post('/api/classify',
+                              data=json.dumps(test_data),
+                              content_type='application/json')
+        
+        data = json.loads(response.data)
+        
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(data['success'])
+        self.assertIn('error', data)
+        self.assertIn('spelling_suggestions', data)
+        
+        # Check if we got spelling suggestions for the misspelled words
+        self.assertIn('positve', data['spelling_suggestions'])
+        self.assertIn('happyness', data['spelling_suggestions'])
+        
+        # Check if the suggestions are correct
+        self.assertEqual(data['spelling_suggestions']['positve'], 'positive')
+        self.assertEqual(data['spelling_suggestions']['happyness'], 'happiness')
 
 if __name__ == '__main__':
     unittest.main() 

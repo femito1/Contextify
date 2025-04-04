@@ -1,0 +1,59 @@
+
+::ng-deep .result-container {
+    margin: 3px auto;
+    padding: 12px 90px;
+    display: block;
+    background-color: #ffffff;
+    border-left: 5px solid #2dd1da;
+    border-right: 5px solid #2dd1da;
+    border-top: 5px solid #2dd1da;
+    border-bottom: 5px solid #2dd1da;
+    border-radius: 8px;
+    font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #000000;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    width: fit-content;
+  }
+  ::ng-deep .result-prob {
+    font-size: 1.2rem;
+    color: #2dd1da;
+    font-family:Arial, Helvetica, sans-serif;
+    font-style:oblique;
+  }
+
+
+.go-home-button {
+    font-size: clamp(1rem, 1vw, 1.05rem);
+    padding: clamp(10px, 2vw, 20px);
+    height: auto;
+    min-height: 44px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: center;
+    width: 200px;
+    background-color:  #FF4136;
+    color: white;
+  }
+  .go-home-button-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-top: 40px;
+  }
+  
+  .go-back-button {
+    background-color:  #6b6767;
+    color: white;
+  }
+  .go-back-button-wrapper {
+    display: flex;
+    justify-content: right;
+    margin-top: 0px;
+    margin-bottom: 10px;
+
+      
+ 
+      
+}

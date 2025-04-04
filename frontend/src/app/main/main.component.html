@@ -1,0 +1,20 @@
+<!-- <div class="language-selecter-wrapper">
+  <mat-form-field appearance="outline" class="language-selecter">
+    <mat-select [(value)]="selectedLanguage">
+      @for (option of languages; track option) {
+        <mat-option [value]="option.value">{{ option.viewValue }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div> -->
+
+<div class="main-wrapper">
+    <div class="logo-wrapper">
+      <img ngSrc="/img/contexify_logo.svg" width="380" height="120" alt="Contextify Logo" [priority]="true">
+    </div>
+  
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+  

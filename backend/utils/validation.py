@@ -1,4 +1,5 @@
 from config import MAX_TEXT_LENGTH, MAX_LABELS, MAX_LABEL_LENGTH
+from utils.language import spell_check_label
 
 def validate_classification_input(data):
     """
@@ -52,7 +53,9 @@ def validate_classification_input(data):
             'error': f'Too many labels provided. Maximum is {MAX_LABELS}'
         }
     
-    # Check if labels are valid strings
+    # Check if labels are valid strings and check spelling
+    spelling_suggestions = {}
+    
     for label in data['labels']:
         if not isinstance(label, str) or not label.strip():
             return {
@@ -66,6 +69,19 @@ def validate_classification_input(data):
                 'valid': False,
                 'error': f'Label "{label}" exceeds maximum length of {MAX_LABEL_LENGTH} characters'
             }
+        
+        # Check label spelling
+        spell_check_result = spell_check_label(label)
+        if not spell_check_result['correct']:
+            spelling_suggestions[label] = spell_check_result['suggestion']
+    
+    # If there are spelling issues, return them
+    if spelling_suggestions:
+        return {
+            'valid': False,
+            'error': 'Some labels may be misspelled',
+            'spelling_suggestions': spelling_suggestions
+        }
     
     # All checks passed
     return {

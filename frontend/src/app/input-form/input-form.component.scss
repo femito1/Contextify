@@ -1,0 +1,15 @@
+  .text-box {
+    display: flex;
+    width: clamp(300px, 80vw, 600px);
+    align-items: center;
+    min-width: 400px;
+  }
+
+  .text-box textarea {
+    height: 150px;
+    background-color: #ffffff;
+    color: #474545;
+    font-size: larger;
+    align-items: center;
+  }
+ 
