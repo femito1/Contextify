@@ -132,20 +132,25 @@ export class OutputComponent implements OnInit, AfterViewInit {
 
           this.processLabels(response);
 
-          // If no user labels were provided, only show suggested labels
-          if (this.userLabels.length === 0 && this.combinedLabels.length > 0) {
-            this.predictedLabel = this.combinedLabels[0].label;
-            this.predictedProb = this.roundToPercent(this.combinedLabels[0].probability);
-            this.predictedLikelihood = this.roundToPercent(this.combinedLabels[0].likelihood);
-          }
-          // If user labels were provided, show the best from user labels
-          else if (this.combinedLabels.length > 0) {
-            const bestUserLabel = this.combinedLabels.find(label => !label.isSuggested);
-            if (bestUserLabel) {
-              this.predictedLabel = bestUserLabel.label;
-              this.predictedProb = this.roundToPercent(bestUserLabel.probability);
-              this.predictedLikelihood = this.roundToPercent(bestUserLabel.likelihood);
-            }
+          // // If no user labels were provided, only show suggested labels
+          // if (this.userLabels.length === 0 && this.combinedLabels.length > 0) {
+          //   this.predictedLabel = this.combinedLabels[0].label;
+          //   this.predictedProb = this.roundToPercent(this.combinedLabels[0].probability);
+          //   this.predictedLikelihood = this.roundToPercent(this.combinedLabels[0].likelihood);
+          // }
+          // // If user labels were provided, show the best from user labels
+          // else if (this.combinedLabels.length > 0) {
+          //   const bestUserLabel = this.combinedLabels.find(label => !label.isSuggested);
+          //   if (bestUserLabel) {
+          //     this.predictedLabel = bestUserLabel.label;
+          //     this.predictedProb = this.roundToPercent(bestUserLabel.probability);
+          //     this.predictedLikelihood = this.roundToPercent(bestUserLabel.likelihood);
+          //   }
+          // }
+          if (response.results.best_label) {
+            this.predictedLabel = response.results.best_label.label;
+            this.predictedProb = this.roundToPercent(response.results.best_label.probability);
+            this.predictedLikelihood = this.roundToPercent(response.results.best_label.likelihood);
           }
         } else {
           this.error = response.error || "Unknown error occurred";

@@ -6,6 +6,8 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
 from collections import defaultdict
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+from nltk.corpus import stopwords as nltk_stopwords
 import re
 from sklearn.feature_extraction.text import CountVectorizer
 from .keywords import keyword_labels, get_keywords_for_language
@@ -72,12 +74,20 @@ def predict_labels(text, labels, lang="en", suggested=False):
 
 def extract_keywords_with_frequency(text, top_n=5, lang="en"):
     text = re.sub(r"[^\w\s]", "", text.lower())
-    vectorizer = CountVectorizer(stop_words="english" if lang == "en" else None)
+    
+    if lang == "en":
+        stop_words = nltk_stopwords.words('english')  
+    elif lang == "it":
+        stop_words = nltk_stopwords.words('italian')  
+    else:
+        stop_words = None
+    
+    vectorizer = CountVectorizer(stop_words=stop_words)
     X = vectorizer.fit_transform([text])
     word_freq = dict(zip(vectorizer.get_feature_names_out(), X.toarray()[0]))
     keywords = [(word, freq) for word, freq in word_freq.items() if len(word) > 2]
+    
     keywords.sort(key=lambda x: x[1], reverse=True)
-
     return keywords[:top_n]
 
 
@@ -181,11 +191,13 @@ def zero_shot_classify(text, labels, lang="en", threshold=0.35):
         ):
             best_label = sorted_similar_keywords[0]
 
+    elif sorted_similar_keywords:
+        best_label = sorted_similar_keywords[0]
+
     novel_suggestions = {
         "similar_predefined_labels": similar_keywords,
         "keyword_suggestions": keyword_suggestions,
     }
-
     return {
         "predictions": sorted_predictions,
         "novel_suggestions": (
