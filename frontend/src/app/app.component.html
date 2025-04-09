@@ -5,7 +5,7 @@
 <div class="example-button-container">
   
   <div class="enter-label-text">
-    <p><em>Enter suggested labels:</em></p>
+    <p><em>{{ 'INPUT_LABELS_HEADER' | translate }}</em></p>
   </div>
   <mat-form-field class="example-form-field" appearance="fill">
     <div class="new-label">
@@ -20,7 +20,7 @@
       placeholder="New label..."
       style="flex: 1;"
     />
-    <button mat-raised-button color="primary" (click)="addLabelManually(labelInput)">Add</button>
+    <button mat-raised-button color="primary" (click)="addLabelManually(labelInput)">{{ 'ADD' | translate }}</button>
     </div>
     <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
       @for (label of filteredLabels | async; track label) {
@@ -32,7 +32,7 @@
       {{ errorMessage() }}
     </div>
     
-    <mat-label>Suggested Labels</mat-label>
+    <mat-label>{{ 'CANDIDATE_LABELS' | translate }}</mat-label>
 
   </mat-form-field>
   <div class="deneme">
@@ -50,6 +50,6 @@
 
 
   <div class="example-button-row">
-    <button mat-raised-button class="my-custom-button" (click)="goToOutput()">Classify</button>
+    <button mat-raised-button class="my-custom-button" (click)="goToOutput()">{{ 'CLASSIFY' | translate }}</button>
   </div>
 </div>

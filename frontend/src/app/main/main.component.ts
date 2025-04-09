@@ -1,7 +1,6 @@
 import { CommonModule, NgOptimizedImage } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { InputFormComponent } from '../input-form/input-form.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { FormsModule } from '@angular/forms';
@@ -9,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ApiService } from '../api.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 interface Language {
   value: string;
@@ -19,53 +19,60 @@ interface Language {
   selector: 'app-main',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterOutlet, 
-    NgOptimizedImage, 
-    MatFormFieldModule, 
-    MatInputModule, 
-    FormsModule, 
+    CommonModule,
+    RouterOutlet,
+    NgOptimizedImage,
+    MatFormFieldModule,
+    MatInputModule,
+    FormsModule,
     MatSelectModule,
     MatButtonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    TranslateModule
   ],
   templateUrl: './main.component.html',
-  styleUrls: ['./main.component.scss'] 
+  styleUrls: ['./main.component.scss']
 })
 export class MainComponent {
   languages: Language[] = [
-    {value: 'English', viewValue: 'English'},
-    {value: 'Italian', viewValue: 'Italian'},
+    { value: 'en', viewValue: 'English' },
+    { value: 'it', viewValue: 'Italian' }
   ];
-  selectedLanguage = this.languages[0].value;
+  selectedLanguage = 'en';
   
-  // New properties for classification
   inputText = '';
   candidateLabels: string[] = ['positive', 'negative', 'neutral'];
   classificationResults: any;
   isLoading = false;
   errorMessage: string | null = null;
 
-  constructor(private apiService: ApiService) {}
+  constructor(
+    private apiService: ApiService,
+    private translate: TranslateService
+  ) {
+    translate.setDefaultLang('en');
+    translate.use('en');
+  }
 
-  // Handle text input changes from InputFormComponent
+  changeLanguage() {
+    this.translate.use(this.selectedLanguage);
+    console.log('Language changed to:', this.selectedLanguage); // For debugging
+  }
+
   onTextChanged(text: string) {
     this.inputText = text;
   }
 
-  // Handle label additions
   onLabelAdded(label: string) {
     if (!this.candidateLabels.includes(label)) {
       this.candidateLabels = [...this.candidateLabels, label];
     }
   }
 
-  // Handle label removals
   onLabelRemoved(label: string) {
     this.candidateLabels = this.candidateLabels.filter(l => l !== label);
   }
 
-  // Classify the text using Flask API
   classifyText() {
     if (!this.inputText.trim()) {
       this.errorMessage = 'Please enter some text to classify';
@@ -88,7 +95,6 @@ export class MainComponent {
     });
   }
 
-  // Check backend health status
   checkApiHealth() {
     this.apiService.checkHealth().subscribe({
       next: (response) => console.log('API Health:', response),

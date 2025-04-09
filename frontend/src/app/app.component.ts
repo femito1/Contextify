@@ -13,6 +13,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatAutocompleteModule, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { ApiService } from './api.service';
 import { Observable, debounceTime, distinctUntilChanged, of, startWith, switchMap } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-root',
@@ -29,7 +30,8 @@ import { Observable, debounceTime, distinctUntilChanged, of, startWith, switchMa
     MatIconModule,
     MatButtonModule,
     MatAutocompleteModule,
-    InputFormComponent
+    InputFormComponent, 
+    TranslateModule
   ],
 })
 export class AppComponent implements OnInit {
@@ -42,7 +44,7 @@ export class AppComponent implements OnInit {
   filteredLabels: Observable<string[]>;
   allLabels: string[] = [];
     
-  constructor(private router: Router, private apiService: ApiService) {
+  constructor(private router: Router, private apiService: ApiService, private translate: TranslateService) {
     const restoredText = history.state['inputText'];
     const restoredLabels = history.state['userLabels'];
   
@@ -86,13 +88,7 @@ export class AppComponent implements OnInit {
       setTimeout(() => this.errorMessage.set(null), 3000);
       return;
     }
-    
-    if (labels.length === 0) {
-      this.errorMessage.set("Please add at least one label");
-      setTimeout(() => this.errorMessage.set(null), 3000);
-      return;
-    }
-    
+
     this.router.navigate(['/output'], {
       state: {
         userLabels: labels,

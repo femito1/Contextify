@@ -5,80 +5,10 @@ from yake import KeywordExtractor
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 from sentence_transformers import SentenceTransformer, util
-
-keyword_labels = {
-    'politics': {
-        'name': {'en': 'Politics', 'it': 'Politica'},
-        'keywords': {
-            'en': ['government', 'election', 'president', 'political', 'party', 'vote', 'policy', 'minister', 'debate', 'parliament', 'democracy'],
-            'it': ['governo', 'elezione', 'presidente', 'politico', 'partito', 'voto', 'politica', 'ministro', 'dibattito', 'parlamento', 'democrazia']
-        }
-    },
-    'sports': {
-        'name': {'en': 'Sports', 'it': 'Sport'},
-        'keywords': {
-            'en': ['football', 'soccer', 'basketball', 'game', 'player', 'team', 'score', 'match', 'tournament', 'league', 'athlete', 'coach'],
-            'it': ['calcio', 'pallone', 'pallacanestro', 'partita', 'giocatore', 'squadra', 'punteggio', 'torneo', 'campionato', 'atleta', 'allenatore']
-        }
-    },
-    'technology': {
-        'name': {'en': 'Technology', 'it': 'Tecnologia'},
-        'keywords': {
-            'en': ['computer', 'software', 'internet', 'app', 'digital', 'tech', 'AI', 'robotics', 'blockchain', 'programming', 'device'],
-            'it': ['computer', 'software', 'internet', 'app', 'digitale', 'tecnologia', 'intelligenza artificiale', 'robotica', 'blockchain', 'programmazione', 'dispositivo']
-        }
-    },
-    'science': {
-        'name': {'en': 'Science', 'it': 'Scienza'},
-        'keywords': {
-            'en': ['research', 'study', 'scientist', 'experiment', 'discovery', 'theory', 'physics', 'biology', 'chemistry', 'data', 'analysis'],
-            'it': ['ricerca', 'studio', 'scienziato', 'esperimento', 'scoperta', 'teoria', 'fisica', 'biologia', 'chimica', 'dati', 'analisi']
-        }
-    },
-    'entertainment': {
-        'name': {'en': 'Entertainment', 'it': 'Intrattenimento'},
-        'keywords': {
-            'en': ['movie', 'film', 'music', 'actor', 'celebrity', 'show', 'drama', 'comedy', 'series', 'concert'],
-            'it': ['film', 'musica', 'attore', 'celebrità', 'spettacolo', 'dramma', 'commedia', 'serie', 'concerto']
-        }
-    },
-    'travel': {
-        'name': {'en': 'Travel', 'it': 'Viaggio'},
-        'keywords': {
-            'en': ['city', 'country', 'destination', 'tourism', 'visit', 'trip', 'vacation', 'landmark', 'adventure', 'architecture'],
-            'it': ['città', 'paese', 'destinazione', 'turismo', 'visita', 'viaggio', 'vacanza', 'monumento', 'avventura', 'architettura']
-        }
-    },
-    'food': {
-        'name': {'en': 'Food', 'it': 'Cibo'},
-        'keywords': {
-            'en': ['recipe', 'restaurant', 'cook', 'delicious', 'taste', 'flavor', 'cuisine', 'chef', 'dish', 'meal', 'ingredient'],
-            'it': ['ricetta', 'ristorante', 'cuoco', 'delizioso', 'gusto', 'sapore', 'cucina', 'chef', 'piatto', 'pasto', 'ingrediente']
-        }
-    },
-    'health': {
-        'name': {'en': 'Health', 'it': 'Salute'},
-        'keywords': {
-            'en': ['doctor', 'medical', 'disease', 'exercise', 'healthy', 'wellness', 'treatment', 'hospital', 'vaccine', 'nutrition'],
-            'it': ['medico', 'salute', 'malattia', 'esercizio', 'sano', 'benessere', 'cura', 'ospedale', 'vaccino', 'nutrizione']
-        }
-    },
-    'business': {
-        'name': {'en': 'Business', 'it': 'Business'},
-        'keywords': {
-            'en': ['company', 'market', 'economy', 'financial', 'investment', 'startup', 'industry', 'revenue', 'stock', 'capital'],
-            'it': ['azienda', 'mercato', 'economia', 'finanziario', 'investimento', 'startup', 'industria', 'ricavo', 'azione', 'capitale']
-        }
-    },
-    'education': {
-        'name': {'en': 'Education', 'it': 'Educazione'},
-        'keywords': {
-            'en': ['school', 'university', 'student', 'learning', 'teacher', 'study', 'course', 'exam', 'degree', 'classroom'],
-            'it': ['scuola', 'università', 'studente', 'apprendimento', 'insegnante', 'studio', 'corso', 'esame', 'laurea', 'aula']
-        }
-    }
-}
-
+from collections import defaultdict
+import re
+from sklearn.feature_extraction.text import CountVectorizer
+from .keywords import keyword_labels, get_keywords_for_language
 
 # Load fine-tuned XLM-RoBERTa model
 model_name = "nharutyunyan/fine_tuned_xlmr_v2"
@@ -86,17 +16,19 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 model.eval()
 
+
 # Reformat labels to match the hypothesis format of the model
 def format_nli_input(text, candidate_labels, lang="en"):
     if lang == "it":
         hypotheses = [f"Questo testo riguarda {label}" for label in candidate_labels]
     else:
         hypotheses = [f"This text is about {label}" for label in candidate_labels]
-    
+
     return text, hypotheses
 
+
 # Get the confidence scores for entailment
-def predict_labels(text, labels, lang="en"):
+def predict_labels(text, labels, lang="en", suggested=False):
     premise, hypotheses = format_nli_input(text, labels, lang)
 
     inputs = tokenizer(
@@ -104,70 +36,160 @@ def predict_labels(text, labels, lang="en"):
         hypotheses,
         padding=True,
         truncation=True,
-        return_tensors="pt"
+        return_tensors="pt",
     )
 
     with torch.no_grad():
         outputs = model(**inputs)
-    
-    logits = outputs.logits  # Shape: (num_labels, 3) -> entailment, neutral, contradiction
+
+    logits = (
+        outputs.logits
+    ) 
     entailment_logits = logits[:, 0]  # Extract entailment scores
 
-    # Convert to probabilities
+    # Convert to probabilities and likelihoods
     probs = F.softmax(entailment_logits, dim=0)
+    likelihoods = torch.sigmoid(entailment_logits)
 
-    return {label: prob.item() for label, prob in zip(labels, probs)}
+    # Create results with both probability and likelihood
+    results = []
+    for label, prob, likelihood in zip(labels, probs, likelihoods):
+        if suggested:
+            results.append(
+                {"label": label, "probability": 0, "likelihood": likelihood.item()}
+            )
+        else:
+            results.append(
+                {
+                    "label": label,
+                    "probability": prob.item(),
+                    "likelihood": likelihood.item(),
+                }
+            )
 
-# Extract keywords and suggest as new labels
-def suggest_novel_label(text, top_n=1, lang="en"):
+    return results
+
+
+def extract_keywords_with_frequency(text, top_n=5, lang="en"):
+    text = re.sub(r"[^\w\s]", "", text.lower())
+    vectorizer = CountVectorizer(stop_words="english" if lang == "en" else None)
+    X = vectorizer.fit_transform([text])
+    word_freq = dict(zip(vectorizer.get_feature_names_out(), X.toarray()[0]))
+    keywords = [(word, freq) for word, freq in word_freq.items() if len(word) > 2]
+    keywords.sort(key=lambda x: x[1], reverse=True)
+
+    return keywords[:top_n]
+
+
+embedder = SentenceTransformer("paraphrase-multilingual-MiniLM-L12-v2")
+
+
+def suggest_novel_labels(text, candidate_labels, top_n=3, lang="en", min_likelihood=0):
     kw_extractor = KeywordExtractor(lan=lang, n=1, top=top_n)
-    keywords = kw_extractor.extract_keywords(text)
+    yake_keywords = [(kw[0], kw[1]) for kw in kw_extractor.extract_keywords(text)]
+    frequent_words = extract_keywords_with_frequency(text, top_n=top_n, lang=lang)
+    candidate_keywords = set(c.lower() for c in candidate_labels)
+    suggestions = {}
+    for word, score in yake_keywords + frequent_words:
+        word = word.lower()
+        if word not in suggestions and word not in candidate_keywords:
+            suggestions[word] = score
 
-    return [kw[0] for kw in keywords]
+    if suggestions:
+        max_score = max(suggestions.values())
+        suggestions = {word: (score / max_score) for word, score in suggestions.items()}
 
-embedder = SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')
+    top_keywords = [
+        word
+        for word, score in sorted(suggestions.items(), key=lambda x: x[1], reverse=True)
+    ][:top_n]
 
-def get_keywords_by_language(keyword_labels, lang="en"):
-    return {
-        label: data['keywords'].get(lang, []) 
-        for label, data in keyword_labels.items()
+    if not top_keywords:
+        return []
+
+    predictions = predict_labels(text, top_keywords, lang=lang, suggested=True)
+
+    return [pred for pred in predictions if pred["likelihood"] >= min_likelihood]
+
+
+def suggest_label_by_similarity(
+    text, candidate_labels, lang="en", top_k=3, min_likelihood=0
+):
+    label_keywords = get_keywords_for_language(keyword_labels, lang)
+
+    candidate_keywords = set(c.lower() for c in candidate_labels)
+    available_keywords = [
+        kw for kw in label_keywords if kw.lower() not in candidate_keywords
+    ]
+
+    if not available_keywords:
+        return []
+
+    text_embedding = embedder.encode(text)
+    keyword_embeddings = embedder.encode(available_keywords)
+
+    similarities = cosine_similarity(text_embedding.reshape(1, -1), keyword_embeddings)[
+        0
+    ]
+    keyword_scores = list(zip(available_keywords, similarities))
+    top_keywords = [
+        kw.lower()
+        for kw, score in sorted(keyword_scores, key=lambda x: x[1], reverse=True)
+    ][:top_k]
+
+    if not top_keywords:
+        return []
+
+    predictions = predict_labels(text, top_keywords, lang, suggested=True)
+
+    return [pred for pred in predictions if pred["likelihood"] >= min_likelihood]
+
+
+def zero_shot_classify(text, labels, lang="en", threshold=0.35):
+    min_likelihood = 0
+    sorted_predictions = []
+    if labels:
+        predictions = predict_labels(text, labels, lang)
+        sorted_predictions = sorted(
+            predictions, key=lambda x: x["probability"], reverse=True
+        )
+        best_label = sorted_predictions[0]
+        max_candidate_likelihood = max(p["likelihood"] for p in predictions)
+        min_likelihood = max_candidate_likelihood
+
+    similar_keywords = suggest_label_by_similarity(
+        text, labels, lang=lang, top_k=3, min_likelihood=min_likelihood
+    )
+
+    keyword_suggestions = suggest_novel_labels(
+        text, labels, top_n=3, lang=lang, min_likelihood=min_likelihood
+    )
+
+    sorted_similar_keywords = sorted(
+        similar_keywords, key=lambda x: x["likelihood"], reverse=True
+    )
+
+    sorted_keyword_suggestions = sorted(
+        keyword_suggestions, key=lambda x: x["likelihood"], reverse=True
+    )
+    if sorted_keyword_suggestions:
+        best_label = sorted_keyword_suggestions[0]
+        if (
+            sorted_similar_keywords
+            and sorted_keyword_suggestions[0]["likelihood"]
+            < sorted_similar_keywords[0]["likelihood"]
+        ):
+            best_label = sorted_similar_keywords[0]
+
+    novel_suggestions = {
+        "similar_predefined_labels": similar_keywords,
+        "keyword_suggestions": keyword_suggestions,
     }
 
-def suggest_label_by_similarity(text, keyword_labels, lang="en", top_k=1):
-    label_keywords = get_keywords_by_language(keyword_labels, lang)
-    text_embedding = embedder.encode(text)
-
-    label_scores = {}
-    for label, keywords in label_keywords.items():
-        if not keywords:
-            continue  # Skip labels with no keywords in this language
-        keyword_embeddings = embedder.encode(keywords)
-        label_embedding = np.mean(keyword_embeddings, axis=0)
-        similarity = cosine_similarity(
-            text_embedding.reshape(1, -1), label_embedding.reshape(1, -1)
-        )[0][0]
-        label_scores[label] = similarity
-
-    sorted_labels = sorted(label_scores.items(), key=lambda x: x[1], reverse=True)
-
-    # Return label names + similarity scores
-    if sorted_labels:
-        return sorted_labels[0][0]
-    return None
-
-
-# Perform the predictions
-def zero_shot_classify(text, labels, lang="en", threshold = .35):
-    label_probs = predict_labels(text, labels, lang)
-
-    # Sort labels by probability
-    sorted_labels = sorted(label_probs.items(), key=lambda x: x[1], reverse=True)
-
-    # Get the best label
-
-    best_label, best_prob = sorted_labels[0]
-    if best_prob < threshold:
-        novel_suggestions = suggest_label_by_similarity(text, keyword_labels=keyword_labels, lang=lang)
-        return {"predicted_labels": sorted_labels, "novel_suggestions": novel_suggestions, "best_label": best_label}
-    
-    return {"predicted_labels": sorted_labels, "novel_suggestions": None, "best_label": best_label}
+    return {
+        "predictions": sorted_predictions,
+        "novel_suggestions": (
+            novel_suggestions if any(similar_keywords + keyword_suggestions) else None
+        ),
+        "best_label": best_label,
+    }

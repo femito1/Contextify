@@ -1,57 +1,103 @@
-<div class="go-back-button-wrapper">
-  <button mat-raised-button class="go-back-button" (click)="goBack()">Back to Edit</button>
+<div *ngIf="loading" class="loading-overlay"></div>
+
+<div *ngIf="loading" class="loading-container">
+  <mat-spinner diameter="50"></mat-spinner>
+  <p>{{ 'CLASSIFYING_TEXT' | translate }}</p>
 </div>
 
-<app-input-form [initialText]="inputText" [readonly]="true"></app-input-form>
-
-<app-labels-probs *ngIf="userLabels.length > 0 && !loading && !error && !spellingError" [userLabels]="userLabels" [classificationResults]="classificationResults"></app-labels-probs>
-
-<div *ngIf="loading" class="loading-container" style="text-align: center; margin: 20px 0;">
-  <p>Classifying text...</p>
-</div>
-
-<div *ngIf="spellingError" class="spelling-error-container" style="text-align: center; margin: 20px 0; color: #ff6b00;">
-  <p>Some labels may be misspelled. Would you like to use these corrections instead?</p>
-  <div style="margin: 15px 0;">
-    <table style="margin: 0 auto; text-align: left;">
-      <tr>
-        <th style="padding: 5px 10px;">Original</th>
-        <th style="padding: 5px 10px;">Suggested</th>
-      </tr>
-      <tr *ngFor="let correction of spellingCorrections | keyvalue">
-        <td style="padding: 5px 10px;">{{ correction.key }}</td>
-        <td style="padding: 5px 10px;">{{ correction.value }}</td>
-      </tr>
-    </table>
+<div [class.content-disabled]="loading">
+  <div class="go-back-button-wrapper">
+    <button mat-raised-button class="go-back-button" (click)="goBack()">
+      {{ 'BACK_TO_EDIT' | translate }}
+    </button>
   </div>
-  <div style="margin-top: 15px;">
-    <button mat-raised-button color="primary" (click)="useSpellingCorrections()">Use Corrected Labels</button>
-    <button mat-raised-button style="margin-left: 10px;" (click)="goBack()">Edit Labels Manually</button>
-  </div>
-</div>
 
-<div *ngIf="error && !spellingError" class="error-container" style="text-align: center; margin: 20px 0; color: red;">
-  <p>{{ error }}</p>
-</div>
+  <app-input-form [initialText]="inputText" [readonly]="true"></app-input-form>
 
-<div *ngIf="!loading && !error && !spellingError">
-  <h4 style="text-align: center;">The label from the selection that best describes the text is:</h4>
-
-  <div class="result-container" style="text-align: center;">
-    <div class="result-label">
-      <span class="label-text"><strong>{{ predictedLabel }}</strong></span>
+  <div *ngIf="spellingError" class="spelling-error-container">
+    <p>{{ 'SPELLING_ERROR_MESSAGE' | translate }}</p>
+    <div class="corrections-table">
+      <table>
+        <tr>
+          <th>{{ 'ORIGINAL' | translate }}</th>
+          <th>{{ 'SUGGESTED' | translate }}</th>
+        </tr>
+        <tr *ngFor="let correction of spellingCorrections | keyvalue">
+          <td>{{ correction.key }}</td>
+          <td>{{ correction.value }}</td>
+        </tr>
+      </table>
     </div>
-    
-    <div class="result-prob">
-      <span>Probability: {{ predictedProb }}%</span>
-    </div>
-    
-    <div *ngIf="language" class="detected-language">
-      <span>Detected language: {{ language }}</span>
+    <div class="correction-buttons">
+      <button mat-raised-button color="primary" (click)="useSpellingCorrections()">
+        {{ 'USE_CORRECTIONS' | translate }}
+      </button>
+      <button mat-raised-button (click)="goBack()">
+        {{ 'EDIT_MANUALLY' | translate }}
+      </button>
     </div>
   </div>
-</div>
 
-<div class="go-home-button-wrapper">
-  <button mat-raised-button class="go-home-button" (click)="goToHome()">Enter new text</button>
+  <div *ngIf="error && !spellingError" class="error-container">
+    <p>{{ error }}</p>
+  </div>
+
+  <div *ngIf="!loading && !error && !spellingError">
+    <div *ngIf="showCombinedTable" class="results-container">
+      <h4>{{ 'MOST_RELEVANT_LABEL' | translate }}:</h4>
+      <div class="primary-result">
+        <span class="label">{{ predictedLabel }}</span>
+        <div class="scores">
+          <span>{{ 'LIKELIHOOD' | translate }}: {{ predictedLikelihood }}%</span>
+        </div>
+        <div *ngIf="language" class="language">
+          {{ 'DETECTED_LANGUAGE' | translate }}: {{ language }}
+        </div>
+      </div>
+
+      <div class="combined-table">
+        <h4>
+          <span *ngIf="userLabels.length > 0">{{ 'ALL_CANDIDATE_LABELS' | translate }} + </span>
+          {{ 'SUGGESTED_LABELS' | translate }}
+        </h4>
+        <div class="table-scroll-wrapper">
+          <table mat-table [dataSource]="dataSource" matSort (matSortChange)="announceSortChange($event)" class="mat-elevation-z8">
+            <ng-container matColumnDef="position">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by position">{{ 'NO' | translate }}.</th>
+              <td mat-cell *matCellDef="let element">{{element.position}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="label">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by label">{{ 'LABEL' | translate }}</th>
+              <td mat-cell *matCellDef="let element">
+                {{element.label}}
+                <span *ngIf="element.isSuggested" class="suggestion-badge">{{ 'SUGGESTED' | translate }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="likelihood">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by likelihood">{{ 'LIKELIHOOD' | translate }}</th>
+              <td mat-cell *matCellDef="let element">{{formatPercent(element.likelihood)}}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="probability">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header sortActionDescription="Sort by probability">{{ 'PROBABILITY' | translate }}</th>
+              <td mat-cell *matCellDef="let element">
+                {{element.probability > 0 ? formatPercent(element.probability) : '-'}}
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="go-home-button-wrapper">
+    <button mat-raised-button class="go-home-button" (click)="goToHome()">
+      {{ 'ENTER_NEW_TEXT' | translate }}
+    </button>
+  </div>
 </div>

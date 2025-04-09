@@ -7,7 +7,7 @@ import { MatChipInput, MatChipInputEvent, MatChipsModule } from '@angular/materi
 import { MatFormField, MatFormFieldModule, MatLabel } from '@angular/material/form-field';
 import { MatIcon, MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-input-form',
@@ -16,6 +16,7 @@ import { MatInputModule } from '@angular/material/input';
   styleUrls: ['./input-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
+    TranslateModule,
     CommonModule,
     ReactiveFormsModule,
     MatFormFieldModule,

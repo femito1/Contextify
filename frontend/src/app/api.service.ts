@@ -2,9 +2,24 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, catchError, throwError, of, map } from 'rxjs';
 
+export interface ClassificationResult {
+  label: string;
+  probability: number;
+  likelihood: number;
+}
+
+export interface NovelSuggestions {
+  similar_predefined_labels?: [string, number][];
+  keyword_suggestions?: [string, number][];
+}
+
 export interface ClassificationResponse {
   success: boolean;
-  results: { [key: string]: number };
+  results?: {
+    predictions: ClassificationResult[];
+    best_label: ClassificationResult;
+    novel_suggestions?: NovelSuggestions;
+  };
   language?: string;
   error?: string;
   spelling_suggestions?: { [key: string]: string };
@@ -55,24 +70,19 @@ export class ApiService {
   }
 
   suggestLabels(partialInput: string, textContext: string = ''): Observable<string[]> {
-    // If the input is empty or too short, return common categories
     if (!partialInput || partialInput.length < 2) {
       return of(this.commonCategories.slice(0, 15));
     }
 
-    // Set up query parameters
     let params = new HttpParams()
       .set('query', partialInput);
     
-    // Add text context if available
     if (textContext) {
       params = params.set('text', textContext);
     }
 
-    // Call the backend API
     return this.http.get<SuggestionsResponse>(`${this.apiUrl}/suggest-labels`, { params })
       .pipe(
-        // Extract just the suggestions array from the response
         map(response => {
           if (response && response.success && response.suggestions) {
             return response.suggestions;
@@ -81,7 +91,6 @@ export class ApiService {
         }),
         catchError(error => {
           console.error('Error fetching label suggestions:', error);
-          // Fallback to local filtering if the API fails
           const filteredCategories = this.commonCategories
             .filter(cat => cat.toLowerCase().includes(partialInput.toLowerCase()))
             .slice(0, 10);
@@ -94,13 +103,10 @@ export class ApiService {
     let errorMessage = 'An unknown error occurred';
     
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
       errorMessage = `Error: ${error.error.message}`;
     } else {
-      // Server-side error
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
       
-      // Try to extract more specific error message from response if available
       if (error.error && typeof error.error === 'object' && 'error' in error.error) {
         errorMessage = error.error.error;
       }
