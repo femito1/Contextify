@@ -4,6 +4,5 @@ test_api.py
 node_modules
 .angular
 .DS_Store
-.json
 .editorconfig
 *.pyc
