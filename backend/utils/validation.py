@@ -39,13 +39,6 @@ def validate_classification_input(data):
             'error': 'Labels must be provided as a list'
         }
     
-    # Check if at least one label is provided
-    if len(data['labels']) < 1:
-        return {
-            'valid': False,
-            'error': 'At least one label must be provided'
-        }
-    
     # Check if too many labels are provided
     if len(data['labels']) > MAX_LABELS:
         return {

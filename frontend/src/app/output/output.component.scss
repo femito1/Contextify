@@ -1,31 +1,146 @@
+::ng-deep {
+  .loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    pointer-events: auto;
+  }
 
-::ng-deep .result-container {
-    margin: 3px auto;
-    padding: 12px 90px;
-    display: block;
-    background-color: #ffffff;
-    border-left: 5px solid #2dd1da;
-    border-right: 5px solid #2dd1da;
-    border-top: 5px solid #2dd1da;
-    border-bottom: 5px solid #2dd1da;
+  .loading-container {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1001;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: white;
+    padding: 30px;
     border-radius: 8px;
-    font-family: 'Roboto', 'Helvetica Neue', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #000000;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    min-width: 250px;
     text-align: center;
-    width: fit-content;
-  }
-  ::ng-deep .result-prob {
-    font-size: 1.2rem;
-    color: #2dd1da;
-    font-family:Arial, Helvetica, sans-serif;
-    font-style:oblique;
+
+    p {
+      margin-top: 20px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    mat-spinner {
+      margin: 0 auto;
+      
+      circle {
+        stroke: #2dd1da;
+      }
+    }
   }
 
+  .content-disabled {
+    pointer-events: none;
+    filter: brightness(0.9);
+  }
 
-.go-home-button {
+  .results-container {
+    margin: 20px auto;
+    max-width: 800px;
+    
+    h4 {
+      text-align: center;
+      font-size: 1.5rem;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .primary-result {
+      margin: 3px auto;
+      padding: 12px 90px;
+      display: block;
+      background-color: #ffffff;
+      border-left: 5px solid #2dd1da;
+      border-right: 5px solid #2dd1da;
+      border-top: 5px solid #2dd1da;
+      border-bottom: 5px solid #2dd1da;
+      border-radius: 8px;
+      font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      width: fit-content;
+
+      .label {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #000000;
+        display: block;
+        margin-bottom: 10px;
+      }
+
+      .scores {
+        font-size: 1.2rem;
+        color: #2dd1da;
+        font-family: Arial, Helvetica, sans-serif;
+        font-style: oblique;
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 10px;
+      }
+
+      .language {
+        font-size: 1rem;
+        color: #666;
+        font-style: italic;
+      }
+    }
+  }
+
+  .combined-table {
+    margin-top: 30px;
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+
+    h4 {
+      text-align: center;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .table-scroll-wrapper {
+      overflow-x: auto;
+    }
+
+    .suggestion-badge {
+      background-color: #e3f2fd;
+      color: #1976d2;
+      padding: 2px 6px;
+      border-radius: 12px;
+      font-size: 0.75em;
+      margin-left: 8px;
+    }
+
+    table {
+      width: 100%;
+      
+      th {
+        font-weight: 500;
+        color: rgba(0, 0, 0, 0.87);
+      }
+      
+      td, th {
+        padding: 0 16px;
+        text-align: left;
+      }
+    }
+  }
+
+  .go-home-button {
     font-size: clamp(1rem, 1vw, 1.05rem);
     padding: clamp(10px, 2vw, 20px);
     height: auto;
@@ -34,9 +149,10 @@
     display: flex;
     justify-content: center;
     width: 200px;
-    background-color:  #FF4136;
+    background-color: #FF4136;
     color: white;
   }
+
   .go-home-button-wrapper {
     display: flex;
     justify-content: center;
@@ -44,16 +160,50 @@
   }
   
   .go-back-button {
-    background-color:  #6b6767;
+    background-color: #6b6767;
     color: white;
   }
+
   .go-back-button-wrapper {
     display: flex;
     justify-content: right;
     margin-top: 0px;
-    margin-bottom: 10px;
+    margin-bottom: 10px;  
+  }
 
+  .spelling-error-container,
+  .error-container {
+    margin: 20px auto;
+    max-width: 800px;
+    padding: 20px;
+    background-color: #fff3f3;
+    border-radius: 8px;
+    text-align: center;
+  }
+
+  .corrections-table {
+    margin: 20px auto;
+    max-width: 500px;
+    
+    table {
+      width: 100%;
+      border-collapse: collapse;
       
- 
+      th, td {
+        padding: 8px;
+        border: 1px solid #ddd;
+      }
       
+      th {
+        background-color: #f2f2f2;
+      }
+    }
+  }
+
+  .correction-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+  }
 }

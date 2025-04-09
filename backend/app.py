@@ -53,7 +53,6 @@ def home():
         # This will eventually call model
 
         classification_results = zero_shot_classify(text, candidate_labels, lang=language)
-        print(classification_results)
         return jsonify({
             'success': True,
             'results': classification_results,
