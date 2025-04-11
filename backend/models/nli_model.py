@@ -13,7 +13,7 @@ from sklearn.feature_extraction.text import CountVectorizer
 from .keywords import keyword_labels, get_keywords_for_language
 
 # Load fine-tuned XLM-RoBERTa model
-model_name = "nharutyunyan/fine_tuned_xlmr_v2"
+model_name = "nharutyunyan/fine_tuned_xlmr_v3"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model = AutoModelForSequenceClassification.from_pretrained(model_name)
 model.eval()
