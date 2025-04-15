@@ -1,5 +1,5 @@
 
-# ZERO SHOT CLASSIFICATION MODEL
+# Contextify: ZERO SHOT CLASSIFICATION MODEL
 
 ## Overview  
 This project provides a web-based application to predict the probability of a given text belonging to a set of provided candidate labels. The algorithm also offers a novel candidate label suggestion when none of the provided labels adequately fit the text. It supports both English and Italian entries.
