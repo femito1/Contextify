@@ -1,4 +1,3 @@
-# zero-shot-classification
 
 # ZERO SHOT CLASSIFICATION MODEL
 
