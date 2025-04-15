@@ -20,10 +20,10 @@ This project provides a web-based application to predict the probability of a gi
 
 ### **Step 1: Clone the Repository**  
 ```bash
-git clone http://gitlab.pccube.com:8081/gitlab/codingcamp/aicodingcamp/examples/ai-camp-2/zero-shot-classification.git 
+git clone https://github.com/femito1/Contextify.git 
 ```
 ```bash
-cd zero-shot-classification
+cd Contextify
 ```
 
 ### **Step 2: Create a Virtual Environment for backend**
@@ -32,8 +32,8 @@ To create a virtual environment using Conda, run the following commands:
 
 ```bash
 cd backend
-conda create --name zero_shot_app python=3.12 -y
-conda activate zero_shot_app
+conda create --name contextify_app python=3.12 -y
+conda activate contextify_app
 ```
 
 
